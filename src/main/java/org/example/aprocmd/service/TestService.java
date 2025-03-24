@@ -25,6 +25,7 @@ public class TestService {
     private TcpClient tcpClient;
 
     private final CommandHelper commandHelper;
+    private final RequestCommandService requestCommandService;
 
     public Mono<String> test() {
         tcpClient = TcpClient.create()
@@ -33,10 +34,10 @@ public class TestService {
                 .doOnConnected(conn -> {
                     this.channel = conn.channel();
                     log.info("Connected");
-                    byte[] startCommand = commandHelper.createPacket(Command.ST,
-                            LocalDateTime.of(2025, 3, 21, 16, 23, 0));
-                    log.info("Start command: " + Arrays.toString(startCommand));
-                    sendMessage(startCommand);
+                    //byte[] startCommand = commandService.createPacket(Command.ST,
+                            //LocalDateTime.of(2025, 3, 21, 16, 23, 0));
+                    // log.info("Start command: " + Arrays.toString(startCommand));
+                    sendMessage(null);
                 });
 
        tcpClient
@@ -45,7 +46,7 @@ public class TestService {
                     return in.receive()
                             .asByteArray()
                             .doOnNext(response -> {
-                                log.info("서버 응답: {} " + ByteUtil.byteArrayToHexString(response));
+                                log.info("서버 응답: {} ", ByteUtil.byteArrayToHexString(response));
                             }).then();
                 })
                 .connect()
@@ -56,8 +57,10 @@ public class TestService {
     }
 
     void sendMessage(byte[] message) {
+        String example = "02fe5354080001011903110e23364503";
+        byte[] bytes = ByteUtil.hexStringToByteArray(example);
         ByteBuf byteBuf = Unpooled.buffer(16);
-        ByteBuf hexStringToByte = byteBuf.writeBytes(message);
+        ByteBuf hexStringToByte = byteBuf.writeBytes(bytes);
         ByteBuf writeBytes = channel.alloc().buffer().writeBytes(hexStringToByte);
         channel.writeAndFlush(writeBytes).addListener((event) -> log.info("Send message: " + event.get()));
     }

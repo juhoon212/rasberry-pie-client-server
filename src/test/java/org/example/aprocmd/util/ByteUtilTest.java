@@ -3,6 +3,8 @@ package org.example.aprocmd.util;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.example.aprocmd.util.ByteUtil.*;
 
@@ -50,6 +52,17 @@ class ByteUtilTest {
         String result = byteArrayToHexString(example);
         //then
         assertThat(result).isEqualTo("02FE");
+    }
+
+    @Test
+    @DisplayName("날짜를 바이트 배열로 변환할 수 있다.")
+    void localDateTimeToByteArrayTest() throws Exception{
+        //given
+        LocalDateTime example = LocalDateTime.of(2025, 12, 31, 0, 0, 0);
+        //when
+        byte[] bytes = localDateTimeToByteArray(example);
+        //then
+        assertThat(bytes).containsExactly((byte) 0x19, (byte) 0x0C, (byte) 0x1F, (byte) 0x00, (byte) 0x00, (byte) 0x00);
     }
 
 }

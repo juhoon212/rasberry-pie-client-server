@@ -2,53 +2,70 @@ package org.example.aprocmd.domain.command;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.aprocmd.exception.CommandNotFoundException;
 import org.example.aprocmd.util.ByteUtil;
+import org.example.aprocmd.util.CommandUtil;
 import org.springframework.stereotype.Component;
+
 
 import java.time.LocalDateTime;
 
 import static org.example.aprocmd.util.CommandUtil.*;
+import static org.example.aprocmd.util.ExceptionUtil.ILLEGAL_ARGUMENT_DEFAULT_MESSAGE;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class CommandHelper {
 
-    public byte[] createPacket(final Command command, final LocalDateTime startTime) {
-        switch (command.getType()) {
-            case "MS":
-                return command.getCommandByte();
-            case "ST":
-                createStartCommand(command, startTime);
-            default:
-                return null;
-        }
-    }
-
     public void createPacketHeader(final byte[] byteArray) {
+        if (byteArray == null) {
+            throw new IllegalArgumentException(ILLEGAL_ARGUMENT_DEFAULT_MESSAGE);
+        }
+
         for (int i=0; i<2; ++i) {
-            byteArray[i] = DEFAULT_BLOCK[i];
+            byteArray[i] = DEFAULT_PACKET_HEADER[i];
         }
     }
 
-    public void createCommand(final byte[] data) {
+    public void createCommand(final byte[] data, final Command command) {
         if (data == null) {
-            throw new IllegalArgumentException("데이터가 잘못되었습니다. 관리자에게 문의하세요");
+            throw new IllegalArgumentException(ILLEGAL_ARGUMENT_DEFAULT_MESSAGE);
         }
-        data[2] = Command.ST.getCommandByte()[0]; // S
-        data[3] = Command.ST.getCommandByte()[1]; // T
+
+        if (command == null) {
+            throw new CommandNotFoundException("커맨드가 존재하지 않습니다.");
+        }
+
+        data[2] = command.getCommandByte()[0]; // ex) S
+        data[3] = command.getCommandByte()[1]; // ex) T
     }
 
-    public void createLength(final Command command, final byte[] data) {
+    public void addLength(final byte[] data, final Command command) {
+        if (command == null) {
+            throw new CommandNotFoundException("커맨드가 존재하지 않습니다.");
+        }
         // 2byte
         // 리틀앤디안 방식
-        data[LENGTH_POS] = (byte) (command.getDataLength() & 0xFF);
-        data[LENGTH_POS+1] = (byte) ((command.getDataLength() >> 8) & 0xFF);
+        data[LENGTH_POS] = (byte) ((command.getDataLength() >> 8) & 0xFF);
+        data[LENGTH_POS+1] = (byte) (command.getDataLength() & 0xFF);
     }
 
-    public void createCheckSumAndEtx(final Command command, final byte[] data) {
+    public void addData(final byte[] data, final LocalDateTime startTime) {
         if (data == null) {
-            throw new IllegalArgumentException("데이터가 잘못되었습니다. 관리자에게 문의하세요");
+            throw new IllegalArgumentException(ILLEGAL_ARGUMENT_DEFAULT_MESSAGE);
+        }
+
+        byte[] bytes = ByteUtil.localDateTimeToByteArray(startTime);
+        // data: 공정 시작시간 = index 8 ~ 13
+        for (int i = ST_COMMAND_DATA_RANGE[0]; i < ST_COMMAND_DATA_RANGE[1]; ++i) {
+            data[i] = bytes[i - ST_COMMAND_DATA_RANGE[0]];
+        }
+    }
+
+    public void addCheckSumAndEtx(final byte[] data, final Command command) {
+        if (data == null) {
+            throw new IllegalArgumentException(ILLEGAL_ARGUMENT_DEFAULT_MESSAGE);
         }
 
         int sum = 0;
@@ -56,16 +73,9 @@ public class CommandHelper {
             sum += data[i] & 0xFF;
         }
         data[data.length - 2] = (byte) (sum & 0xFF);
+        log.info("length : {}", data[data.length - 2]);
         data[data.length - 1] = command.getEndOfPacket();
     }
 
-    public byte[] createStartCommand(final Command command, final LocalDateTime startTime) {
-        // Command.ST
-        byte[] packet = new byte[ST_COMMAND_LENGTH];
-        createPacketHeader(packet);
-        createLength(command, packet);
-        createCheckSumAndEtx(command, packet);
 
-        return ByteUtil.localDateTimeToByteArray(startTime);
-    }
 }

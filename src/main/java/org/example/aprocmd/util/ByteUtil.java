@@ -13,6 +13,9 @@ public class ByteUtil {
 
     // 10진수를 16진수 스트링으로 ex) "21" -> "15"
     public static String numStringToHexString(String s) {
+
+
+
         return String.format("%X", Integer.parseInt(s));
     }
 
@@ -51,7 +54,8 @@ public class ByteUtil {
         byte[] result = new byte[length];
 
         for (int i = 0; i < length; i++) {
-            result[i] = (byte) Integer.parseInt(date.substring(i * 2, i * 2 + 2), 16);
+            String hexString = String.format("%02X", Integer.parseInt(date.substring(i * 2, i * 2 + 2)));
+            result[i] = (byte) Integer.parseInt(hexString, 16);
         }
 
         return result;
@@ -64,8 +68,16 @@ public class ByteUtil {
         StringBuilder sb = new StringBuilder();
         divideDateAndTime[0].replace("-", "").chars().forEach(c -> sb.append((char) c));
         divideDateAndTime[1].replace(":", "").chars().forEach(c -> sb.append((char) c));
-        log.info("Start command: " + sb.toString());
+        log.info("Start command time: " + sb);
         // convert to hex
         return ByteUtil.stringDateToByteArray(sb.toString());
+    }
+
+    public static String byteArrayToString(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(b);
+        }
+        return sb.toString();
     }
 }
