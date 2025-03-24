@@ -1,6 +1,7 @@
 package org.example.aprocmd.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 
@@ -13,9 +14,6 @@ public class ByteUtil {
 
     // 10진수를 16진수 스트링으로 ex) "21" -> "15"
     public static String numStringToHexString(String s) {
-
-
-
         return String.format("%X", Integer.parseInt(s));
     }
 
@@ -33,6 +31,7 @@ public class ByteUtil {
         for (int i = 0; i < len; i += 2) {
             data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
                     + Character.digit(s.charAt(i+1), 16));
+            log.info("data: " + data[i / 2]);
         }
         return data;
     }
@@ -61,7 +60,7 @@ public class ByteUtil {
         return result;
     }
 
-    public static byte[] localDateTimeToByteArray(LocalDateTime startTime) {
+    public static byte[] localDateTimeToHexString(LocalDateTime startTime) {
         String parsedStartTime = DateUtil.localDateTimeToStringYearDivide(startTime); // "yy-MM-dd HH:mm:ss"
         String[] divideDateAndTime = parsedStartTime.split(" "); // ["yy-MM-dd", "HH:mm:ss"]
 
@@ -70,14 +69,6 @@ public class ByteUtil {
         divideDateAndTime[1].replace(":", "").chars().forEach(c -> sb.append((char) c));
         log.info("Start command time: " + sb);
         // convert to hex
-        return ByteUtil.stringDateToByteArray(sb.toString());
-    }
-
-    public static String byteArrayToString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(b);
-        }
-        return sb.toString();
+        return stringDateToByteArray(sb.toString());
     }
 }

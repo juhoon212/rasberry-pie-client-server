@@ -3,15 +3,18 @@ package org.example.aprocmd.common;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.example.aprocmd.exception.FieldErrorDetail;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ResponseContainer<T> {
 
     private T payload;
     private boolean success;
     private String message;
-    private ErrDetail detail;
+    private List<FieldErrorDetail> details;
     private PageInfo pageInfo;
     public static<P> ResponseContainer<P> emptyResponse() {
         return new ResponseContainer<P>();
@@ -23,39 +26,21 @@ public class ResponseContainer<T> {
 
     public void setError(Throwable t) {
         this.success = false;
-        this.detail = new ErrDetail();
         this.message = t.getMessage();
-        Throwable cause;
+    }
 
-        cause = t.getCause();
-        if(cause != null) {
-            while(true) {
-                if(cause.getCause()!= null) {
-                    cause = cause.getCause();
-                } else {
-                    break;
-                }
-            }
-            if(cause instanceof SQLException) {
-                detail.code = ((SQLException)cause).getErrorCode();
-            }
-            detail.message = cause.getMessage();
-        }
+    public void setError(List<FieldErrorDetail> details) {
+        this.success = false;
+        this.details = details;
     }
     @Getter
     @Setter
     @ToString
-    public class PageInfo {
+    public static class PageInfo {
         private Long totalCount;
         private int totalPages;
         private int pageNo;
         private Integer size;
     }
-    @Getter
-    @Setter
-    @ToString
-    public class ErrDetail {
-        private int code;
-        private String message;
-    }
+
 }

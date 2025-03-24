@@ -5,8 +5,8 @@ import lombok.Getter;
 @Getter
 public enum Command {
 
-    MS("MS", new byte[]{(byte) 0x02, (byte) 0xFE}, 2,8, 15),
-    ST("ST", new byte[]{0x53, 0x54}, 2, 10, 16);
+    MS("MS", new byte[]{(byte) 0x02, (byte) 0xFE}, 2,10, 15),
+    ST("ST", new byte[]{(byte) 0x53, (byte) 0x54}, 2, 8, 16);
 
     private final String type;
     private final byte[] commandByte;

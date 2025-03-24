@@ -9,5 +9,8 @@ public class CommandUtil {
     // 추후 변경될 수 있음
     public static final byte[] DEFAULT_BLOCK = new byte[]{0x01, 0x01};
 
-    public static byte[] DEFAULT_PACKET_HEADER = new byte[]{0x02, (byte) 0xFE};
+    public static final byte[] DEFAULT_PACKET_HEADER = new byte[]{0x02, (byte) 0xFE};
+
+    public static final String HOST = "192.168.1.2";
+    public static final int PORT = 9013;
 }

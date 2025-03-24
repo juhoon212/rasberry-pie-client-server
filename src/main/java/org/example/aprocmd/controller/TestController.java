@@ -14,7 +14,7 @@ public class TestController {
     private final TestService testService;
 
     @GetMapping("/test")
-    public Mono<String> test() {
+    public Mono<?> test() {
         return testService.test();
     }
 }

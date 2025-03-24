@@ -60,7 +60,7 @@ class ByteUtilTest {
         //given
         LocalDateTime example = LocalDateTime.of(2025, 12, 31, 0, 0, 0);
         //when
-        byte[] bytes = localDateTimeToByteArray(example);
+        byte[] bytes = ByteUtil.localDateTimeToHexString(example);
         //then
         assertThat(bytes).containsExactly((byte) 0x19, (byte) 0x0C, (byte) 0x1F, (byte) 0x00, (byte) 0x00, (byte) 0x00);
     }

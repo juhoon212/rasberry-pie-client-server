@@ -5,15 +5,11 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.aprocmd.domain.command.Command;
 import org.example.aprocmd.domain.command.CommandHelper;
 import org.example.aprocmd.util.ByteUtil;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.netty.tcp.TcpClient;
-
-import java.time.LocalDateTime;
-import java.util.Arrays;
 
 
 @Slf4j
@@ -35,12 +31,12 @@ public class TestService {
                     this.channel = conn.channel();
                     log.info("Connected");
                     //byte[] startCommand = commandService.createPacket(Command.ST,
-                            //LocalDateTime.of(2025, 3, 21, 16, 23, 0));
+                    //LocalDateTime.of(2025, 3, 21, 16, 23, 0));
                     // log.info("Start command: " + Arrays.toString(startCommand));
                     sendMessage(null);
                 });
 
-       tcpClient
+        tcpClient
                 .handle((in, out) -> {
                     // 서버로 메시지 전송
                     return in.receive()

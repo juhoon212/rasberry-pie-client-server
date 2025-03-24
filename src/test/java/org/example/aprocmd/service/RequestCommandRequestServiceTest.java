@@ -9,10 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDateTime;
 
-import static org.example.aprocmd.util.ByteUtil.byteArrayToString;
-import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
-class RequestCommandServiceTest {
+class RequestCommandRequestServiceTest {
 
     @Autowired
     private RequestCommandService requestCommandService;
@@ -22,11 +20,11 @@ class RequestCommandServiceTest {
     void createPacketTest() throws Exception{
         //given
         byte[] command = requestCommandService.createPacket(
-                Command.ST, LocalDateTime.of(2025, 3, 17, 13, 23, 36));
+                Command.ST, LocalDateTime.of(2025, 3, 17, 14, 35, 54));
         //when
-        System.out.println(command.toString());
+        System.out.println("command = " + ByteUtil.byteArrayToHexString(command));
         //then
-        Assertions.assertThat(byteArrayToString(command)).isEqualTo("02fe5354080001011903110e23364503");
+        Assertions.assertThat(ByteUtil.byteArrayToHexString(command)).isEqualToIgnoringCase("02fe5354080001011903110e23364503");
     }
 
 }

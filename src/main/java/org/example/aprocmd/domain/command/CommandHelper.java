@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.aprocmd.exception.CommandNotFoundException;
 import org.example.aprocmd.util.ByteUtil;
-import org.example.aprocmd.util.CommandUtil;
 import org.springframework.stereotype.Component;
 
 
@@ -47,8 +46,9 @@ public class CommandHelper {
         }
         // 2byte
         // 리틀앤디안 방식
-        data[LENGTH_POS] = (byte) ((command.getDataLength() >> 8) & 0xFF);
-        data[LENGTH_POS+1] = (byte) (command.getDataLength() & 0xFF);
+
+        data[LENGTH_POS] = (byte) (command.getCommandLength() & 0xFF);
+        data[LENGTH_POS+1] = (byte) ((command.getCommandLength() >> 8) & 0xFF);
     }
 
     public void addData(final byte[] data, final LocalDateTime startTime) {
@@ -56,7 +56,7 @@ public class CommandHelper {
             throw new IllegalArgumentException(ILLEGAL_ARGUMENT_DEFAULT_MESSAGE);
         }
 
-        byte[] bytes = ByteUtil.localDateTimeToByteArray(startTime);
+        byte[] bytes = ByteUtil.localDateTimeToHexString(startTime);
         // data: 공정 시작시간 = index 8 ~ 13
         for (int i = ST_COMMAND_DATA_RANGE[0]; i < ST_COMMAND_DATA_RANGE[1]; ++i) {
             data[i] = bytes[i - ST_COMMAND_DATA_RANGE[0]];
@@ -72,10 +72,7 @@ public class CommandHelper {
         for (int i=0; i<data.length-2; ++i) {
             sum += data[i] & 0xFF;
         }
-        data[data.length - 2] = (byte) (sum & 0xFF);
-        log.info("length : {}", data[data.length - 2]);
+        data[data.length - 2] = (byte) (sum % 256);
         data[data.length - 1] = command.getEndOfPacket();
     }
-
-
 }
