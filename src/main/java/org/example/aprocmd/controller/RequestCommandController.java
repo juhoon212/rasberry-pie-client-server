@@ -3,7 +3,7 @@ package org.example.aprocmd.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.aprocmd.controller.dto.CommandMapper;
+import org.example.aprocmd.controller.dto.mapper.CommandMapper;
 import org.example.aprocmd.controller.dto.RequestCommandRequest;
 import org.example.aprocmd.controller.dto.ResponseCommandResponse;
 import org.example.aprocmd.domain.command.request.CommandType;

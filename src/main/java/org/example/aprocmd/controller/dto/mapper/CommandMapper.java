@@ -1,5 +1,7 @@
-package org.example.aprocmd.controller.dto;
+package org.example.aprocmd.controller.dto.mapper;
 
+import org.example.aprocmd.controller.dto.RequestCommandRequest;
+import org.example.aprocmd.controller.dto.ResponseCommandResponse;
 import org.example.aprocmd.service.dto.RequestCommandDto;
 import org.example.aprocmd.service.dto.ResponseCommandDto;
 import org.springframework.stereotype.Component;

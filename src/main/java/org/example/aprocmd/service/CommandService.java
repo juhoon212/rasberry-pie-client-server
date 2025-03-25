@@ -4,13 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.aprocmd.domain.command.request.CommandType;
 import org.example.aprocmd.infrastructure.handler.ResponseCommandHandler;
+import org.example.aprocmd.service.dto.mapper.CommandDtoMapper;
 import org.example.aprocmd.util.CommandHelper;
 import org.example.aprocmd.infrastructure.handler.RequestCommandHandler;
 import org.example.aprocmd.exception.command.CommandNotFoundException;
 import org.example.aprocmd.service.dto.RequestCommandDto;
 import org.example.aprocmd.service.dto.ResponseCommandDto;
 import org.example.aprocmd.util.ByteUtil;
-import org.example.aprocmd.util.DateUtil;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -26,6 +26,7 @@ public class CommandService {
     private final CommandHelper commandHelper;
     private final RequestCommandHandler requestCommandHandler;
     private final ResponseCommandHandler responseCommandHandler;
+    private final CommandDtoMapper commandDtoMapper;
 
     public Mono<ResponseCommandDto> sendMessage(final RequestCommandDto command) {
         if (command == null || command.commandType() == null || command.startTime() == null) {
@@ -40,16 +41,12 @@ public class CommandService {
                 .doOnNext(packet ->
                         requestCommandHandler
                                 .sendMessage(packet, command.commandType().getRequestTotalLength())
+                                .flatMapMany(responseCommandHandler::handleResponse)
                                 .subscribeOn(Schedulers.boundedElastic())
                                 .subscribe()
                 )
                 .flatMap(responseCommandHandler::parseData)
-                .flatMap(parsedCommand -> {
-                    ResponseCommandDto responseCommandDto = new ResponseCommandDto(
-                            ByteUtil.byteArrayToHexString(parsedCommand.getData()),
-                            DateUtil.getCurrentLocalDateTime());
-                    return Mono.just(responseCommandDto);
-                });
+                .flatMap(parsedCommand -> Mono.just(commandDtoMapper.mapToCommandResponseDto(parsedCommand)));
     }
 
     public Mono<byte[]> createPacket(final CommandType commandType, final LocalDateTime startTime) {

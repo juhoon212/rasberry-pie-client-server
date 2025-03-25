@@ -7,9 +7,13 @@ import org.example.aprocmd.domain.command.request.CommandType;
 import org.example.aprocmd.domain.command.response.MsCommand;
 import org.example.aprocmd.domain.command.response.StartCommand;
 import org.example.aprocmd.exception.command.CommandNotFoundException;
+import org.example.aprocmd.infrastructure.dto.SocketResponseDto;
+import org.example.aprocmd.infrastructure.dto.mapper.SocketResponseMapper;
 import org.example.aprocmd.util.CommandHelper;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.netty.Connection;
 
 @Slf4j
 @Component
@@ -17,6 +21,18 @@ import reactor.core.publisher.Mono;
 public class ResponseCommandHandler {
 
     private final CommandHelper commandHelper;
+    private final SocketResponseMapper socketResponseMapper;
+
+    public Flux<SocketResponseDto> handleResponse(final Connection conn) {
+        return conn
+                .inbound()
+                .receive()
+                .asByteArray()
+                .flatMap(response -> Mono.just(socketResponseMapper.mapToSocketResponseDto(response)))
+                .doOnNext(response -> log.info("Server response: {}", response.data()));
+    }
+
+
     public Mono<Command> parseData(byte[] data) {
         switch (commandHelper.parseCommand(data)) {
             case ST:
