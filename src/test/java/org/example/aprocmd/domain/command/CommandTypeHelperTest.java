@@ -1,5 +1,7 @@
 package org.example.aprocmd.domain.command;
 
+import org.example.aprocmd.domain.command.request.CommandType;
+import org.example.aprocmd.util.CommandHelper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +11,7 @@ import static org.assertj.core.api.Assertions.*;
 
 
 @SpringBootTest
-class CommandHelperTest {
+class CommandTypeHelperTest {
 
     @Autowired
     private CommandHelper commandHelper;
@@ -26,10 +28,10 @@ class CommandHelperTest {
         //given
         byte[] bytes = new byte[16];
         //when
-        commandHelper.createCommand(bytes, Command.ST);
+        commandHelper.createCommand(bytes, CommandType.ST);
         //then
-        assertThat(bytes[2]).isEqualTo(Command.ST.getCommandByte()[0]);
-        assertThat(bytes[3]).isEqualTo(Command.ST.getCommandByte()[1]);
+        assertThat(bytes[2]).isEqualTo(CommandType.ST.getCommandByte()[0]);
+        assertThat(bytes[3]).isEqualTo(CommandType.ST.getCommandByte()[1]);
     }
 
 

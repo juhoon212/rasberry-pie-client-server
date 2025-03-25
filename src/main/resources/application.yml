@@ -1,1 +1,2 @@
-spring.application.name=apro-cmd
+server:
+  port: 13004

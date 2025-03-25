@@ -1,4 +1,4 @@
-package org.example.aprocmd.exception;
+package org.example.aprocmd.exception.command;
 
 public class CommandNotFoundException extends RuntimeException {
     public CommandNotFoundException() {

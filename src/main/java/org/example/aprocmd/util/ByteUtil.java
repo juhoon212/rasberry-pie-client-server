@@ -1,15 +1,18 @@
 package org.example.aprocmd.util;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cglib.core.Local;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 
 @Slf4j
 public class ByteUtil {
 
-    public static String byteToHexString(byte b) {
-        return String.format("%02X", b);
+    public static Mono<String> byteToHexString(byte b) {
+        return Mono.just(String.format("%02X", b));
     }
 
     // 10진수를 16진수 스트링으로 ex) "21" -> "15"
@@ -67,8 +70,10 @@ public class ByteUtil {
         StringBuilder sb = new StringBuilder();
         divideDateAndTime[0].replace("-", "").chars().forEach(c -> sb.append((char) c));
         divideDateAndTime[1].replace(":", "").chars().forEach(c -> sb.append((char) c));
-        log.info("Start command time: " + sb);
+        log.info("Start commandType time: " + sb);
         // convert to hex
         return stringDateToByteArray(sb.toString());
     }
+
+
 }

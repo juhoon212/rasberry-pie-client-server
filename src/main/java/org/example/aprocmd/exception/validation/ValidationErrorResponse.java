@@ -1,6 +1,7 @@
-package org.example.aprocmd.exception;
+package org.example.aprocmd.exception.validation;
 
 import lombok.Getter;
+import org.example.aprocmd.exception.FieldErrorDetail;
 
 import java.util.List;
 

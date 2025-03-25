@@ -5,6 +5,7 @@ import org.example.aprocmd.common.ResponseContainer;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.support.WebExchangeBindException;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -22,13 +23,13 @@ public class GlobalExceptionHandler {
         return Mono.just(response);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Mono<ResponseContainer<?>> methodArgumentNotValidException(MethodArgumentNotValidException e) {
+    @ExceptionHandler(WebExchangeBindException.class)
+    public Mono<ResponseContainer<?>> methodArgumentNotValidException(WebExchangeBindException e) {
         ResponseContainer<?> response = ResponseContainer.emptyResponse();
 
         List<FieldErrorDetail> fieldErrors = e.getBindingResult().getFieldErrors().stream()
                 .map(error -> new FieldErrorDetail(error.getField(), error.getDefaultMessage()))
-                .collect(Collectors.toList());
+                .toList();
 
         response.setError(fieldErrors);
         return Mono.just(response);

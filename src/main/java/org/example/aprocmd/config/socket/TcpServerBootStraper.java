@@ -1,4 +1,4 @@
-package org.example.aprocmd.socket;
+package org.example.aprocmd.config.socket;
 
 
 public class TcpServerBootStraper {

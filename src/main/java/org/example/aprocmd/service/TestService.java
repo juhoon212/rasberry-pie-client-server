@@ -5,7 +5,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.aprocmd.domain.command.CommandHelper;
+import org.example.aprocmd.util.CommandHelper;
 import org.example.aprocmd.util.ByteUtil;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -21,7 +21,7 @@ public class TestService {
     private TcpClient tcpClient;
 
     private final CommandHelper commandHelper;
-    private final RequestCommandService requestCommandService;
+    private final CommandService commandService;
 
     public Mono<String> test() {
         tcpClient = TcpClient.create()
@@ -30,9 +30,9 @@ public class TestService {
                 .doOnConnected(conn -> {
                     this.channel = conn.channel();
                     log.info("Connected");
-                    //byte[] startCommand = commandService.createPacket(Command.ST,
+                    //byte[] startCommand = commandService.createPacket(CommandType.ST,
                     //LocalDateTime.of(2025, 3, 21, 16, 23, 0));
-                    // log.info("Start command: " + Arrays.toString(startCommand));
+                    // log.info("Start commandType: " + Arrays.toString(startCommand));
                     sendMessage(null);
                 });
 
@@ -55,9 +55,8 @@ public class TestService {
     void sendMessage(byte[] message) {
         String example = "02fe5354080001011903110e23364503";
         byte[] bytes = ByteUtil.hexStringToByteArray(example);
-        ByteBuf byteBuf = Unpooled.buffer(16);
-        ByteBuf hexStringToByte = byteBuf.writeBytes(bytes);
-        ByteBuf writeBytes = channel.alloc().buffer().writeBytes(hexStringToByte);
-        channel.writeAndFlush(writeBytes).addListener((event) -> log.info("Send message: " + event.get()));
+        ByteBuf writeBytes = Unpooled.wrappedBuffer(bytes).writeBytes(bytes);
+        channel.alloc().buffer().writeBytes(writeBytes);
+        channel.writeAndFlush(writeBytes).addListener((event) -> log.info("Send message: " + event.get()));;
     }
 }

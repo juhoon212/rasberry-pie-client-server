@@ -1,14 +1,17 @@
 package org.example.aprocmd.common;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.example.aprocmd.exception.FieldErrorDetail;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResponseContainer<T> {
 
     private T payload;

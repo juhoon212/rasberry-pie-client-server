@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-public class TestController {
+public class HealthCheckController {
     private final TestService testService;
 
     @GetMapping("/test")
