@@ -36,11 +36,17 @@ public class ResponseCommandHandler {
     public Mono<Command> parseData(byte[] data) {
         switch (commandHelper.parseCommand(data)) {
             case ST:
-                StartCommand startCommand = new StartCommand(data, CommandType.ST, data);
-                return Mono.just(startCommand);
+                return Mono.just(
+                        StartCommand.builder()
+                                .data(data)
+                                .commandType(CommandType.ST)
+                                .build());
             case MS:
-                MsCommand msCommand = new MsCommand(data, CommandType.MS, data);
-                return Mono.just(msCommand);
+                return Mono.just(
+                        MsCommand.builder()
+                                .data(data)
+                                .commandType(CommandType.MS)
+                                .build());
             default:
                 log.error("커맨드가 존재하지 않습니다. 관리자에게 문의하세요 data : {}, {}", data[2], data[3]);
                 throw new CommandNotFoundException("커맨드가 존재하지 않습니다. 관리자에게 문의하세요");

@@ -35,9 +35,7 @@ public class CommandService {
 
         // 객체 변환 뒤 DB에 저장하는 로직 작성해도 될듯함.
         return createPacket(command.commandType(), command.startTime())
-                .doOnNext(bytes -> {
-                    log.info("Send message hexString: " + ByteUtil.byteArrayToHexString(bytes));
-                })
+                .doOnNext(bytes -> log.info("Send message hexString: " + ByteUtil.byteArrayToHexString(bytes)))
                 .doOnNext(packet ->
                         requestCommandHandler
                                 .sendMessage(packet, command.commandType().getRequestTotalLength())
@@ -45,7 +43,13 @@ public class CommandService {
                                 .subscribeOn(Schedulers.boundedElastic())
                                 .subscribe()
                 )
-                .flatMap(responseCommandHandler::parseData)
+                .flatMap(responseCommandHandler::parseData) // Command 객체로 변환
+                .doOnNext(parsedData ->
+                        log.info("Parsed data: {}, {}, {}",
+                                ByteUtil.byteArrayToHexString(parsedData.getData()),
+                                parsedData.getCommandType().getType()
+                        )
+                )
                 .flatMap(parsedCommand -> Mono.just(commandDtoMapper.mapToCommandResponseDto(parsedCommand)));
     }
 
