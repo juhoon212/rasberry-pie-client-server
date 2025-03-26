@@ -28,7 +28,7 @@ public class RequestCommandHandler {
                 .host(HOST)
                 .port(PORT)
                 .doOnConnected(conn -> {
-                    conn.addHandlerLast(new ReadTimeoutHandler(20));
+                    conn.addHandlerLast(new ReadTimeoutHandler(10));
                     this.channel = conn.channel();
                     log.info("Connected");
                     sendByteBuf(message, dataLength);
