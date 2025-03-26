@@ -1,6 +1,5 @@
 package org.example.aprocmd.domain.command;
 
-import org.example.aprocmd.domain.command.request.CommandType;
 import org.example.aprocmd.util.CommandHelper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

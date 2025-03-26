@@ -20,13 +20,6 @@ public class ByteUtil {
         return String.format("%X", Integer.parseInt(s));
     }
 
-    public static byte[] intToHexString(int data) {
-        byte[] result = new byte[2];
-        result[0] = (byte) ((data >> 8) & 0xFF);
-        result[1] = (byte) (data & 0xFF);
-        return result;
-    }
-
     public static byte[] hexStringToByteArray(String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];
@@ -73,6 +66,10 @@ public class ByteUtil {
         log.info("Start commandType time: " + sb);
         // convert to hex
         return stringDateToByteArray(sb.toString());
+    }
+
+    public static int byteToInt(byte b) {
+        return b & 0xFF;
     }
 
 

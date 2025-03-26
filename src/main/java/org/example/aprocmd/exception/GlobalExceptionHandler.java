@@ -2,6 +2,7 @@ package org.example.aprocmd.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.aprocmd.common.ResponseContainer;
+import org.example.aprocmd.exception.command.CreateDtoException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -32,6 +33,14 @@ public class GlobalExceptionHandler {
                 .toList();
 
         response.setError(fieldErrors);
+        return Mono.just(response);
+    }
+
+    @ExceptionHandler(CreateDtoException.class)
+    public Mono<ResponseContainer<?>> createDtoException(CreateDtoException e) {
+        ResponseContainer<?> response = ResponseContainer.emptyResponse();
+        log.error("", e.getMessage());
+        response.setError(e);
         return Mono.just(response);
     }
 }

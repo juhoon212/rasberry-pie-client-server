@@ -1,28 +1,34 @@
-package org.example.aprocmd.domain.command.response;
+package org.example.aprocmd.domain.command.request.st;
 
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import org.example.aprocmd.domain.command.request.CommandType;
-import org.example.aprocmd.exception.command.CommandNotFoundException;
+import org.example.aprocmd.domain.command.Command;
+import org.example.aprocmd.domain.command.CommandType;
+
+import java.time.LocalDateTime;
 
 import static org.example.aprocmd.util.CommandUtil.ST_COMMAND_DATA_RANGE;
 
 @Slf4j
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class StartCommand extends Command {
-    @Builder
-    public StartCommand(byte[] data, CommandType commandType, byte[] totalData) {
-        init();
-        this.validate(data);
+@ToString
+public final class RequestStartCommand extends Command {
 
+    private final LocalDateTime startCommandTime; // command start time
+    @Builder
+    public RequestStartCommand(byte[] data, CommandType commandType, LocalDateTime startCommandTime) {
+        init();
+        this.validate(data); // validation
+        this.startCommandTime = startCommandTime;
+        this.command = data;
         this.commandType = commandType;
         this.setHeader(data);
         this.setMainCommand(data);
         this.setSubCommand(data);
         this.setData(data);
         this.setLength(data);
-        this.totalData = totalData;
+        this.setCheckSum(data);
         this.setEtx();
     }
 
@@ -30,7 +36,7 @@ public final class StartCommand extends Command {
         this.header = new byte[2];
         this.temp = new byte[]{0x01, 0x01};
         this.length = new byte[2];
-        this.data = new byte[6];
+        this.data = new byte[CommandType.ST.getDataAreaLength()];
     }
 
     @Override

@@ -24,6 +24,17 @@ class ByteUtilTest {
                 .verifyComplete();
     }
 
+    @Test
+    @DisplayName("byte를 10진수 int로 바꿀 수 있다.")
+    void byteToIntTest() throws Exception{
+        //given
+        byte b = (byte) 0xFF;
+        //when
+        int result = byteToInt(b);
+        //then
+        assertThat(result).isEqualTo(255);
+    }
+
 
 
 

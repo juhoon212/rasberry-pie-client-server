@@ -11,7 +11,15 @@ import reactor.core.publisher.Mono;
 public class CommandExceptionHandler {
 
     @ExceptionHandler(CommandNotFoundException.class)
-    public Mono<ResponseContainer<?>> CommandNotFoundException(CommandNotFoundException e) {
+    public Mono<ResponseContainer<?>> commandNotFoundException(CommandNotFoundException e) {
+        ResponseContainer<?> response = ResponseContainer.emptyResponse();
+        log.error("", e.getMessage());
+        response.setError(e);
+        return Mono.just(response);
+    }
+
+    @ExceptionHandler(RequestStartCommandCreateException.class)
+    public Mono<ResponseContainer<?>> requestStartCommandCreateException(RequestStartCommandCreateException e) {
         ResponseContainer<?> response = ResponseContainer.emptyResponse();
         log.error("", e.getMessage());
         response.setError(e);

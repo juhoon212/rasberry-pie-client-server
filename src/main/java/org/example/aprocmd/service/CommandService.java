@@ -2,7 +2,11 @@ package org.example.aprocmd.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.aprocmd.domain.command.request.CommandType;
+import org.example.aprocmd.domain.command.Command;
+import org.example.aprocmd.domain.command.CommandType;
+import org.example.aprocmd.domain.command.request.st.RequestStartCommand;
+import org.example.aprocmd.exception.command.CreateDtoException;
+import org.example.aprocmd.exception.command.RequestStartCommandCreateException;
 import org.example.aprocmd.infrastructure.handler.ResponseCommandHandler;
 import org.example.aprocmd.service.dto.mapper.CommandDtoMapper;
 import org.example.aprocmd.util.CommandHelper;
@@ -35,30 +39,33 @@ public class CommandService {
 
         // 객체 변환 뒤 DB에 저장하는 로직 작성해도 될듯함.
         return createPacket(command.commandType(), command.startTime())
-                .doOnNext(bytes -> log.info("Send message hexString: " + ByteUtil.byteArrayToHexString(bytes)))
-                .doOnNext(packet ->
+                .flatMap(bytes -> commandHelper.parseBytesToCommand(bytes, command.startTime()))
+                .switchIfEmpty(Mono.error(new RequestStartCommandCreateException("start 명령을 전송할 수 없습니다.")))
+                .doOnNext(requestCommand ->
                         requestCommandHandler
-                                .sendMessage(packet, command.commandType().getRequestTotalLength())
+                                .sendMessage(requestCommand.getCommand(), command.commandType().getTotalLength())
                                 .flatMapMany(responseCommandHandler::handleResponse)
                                 .subscribeOn(Schedulers.boundedElastic())
                                 .subscribe()
                 )
-                .flatMap(responseCommandHandler::parseData) // Command 객체로 변환
-                .doOnNext(parsedData ->
-                        log.info("Parsed data: {}, {}, {}",
+                .doOnSuccess(parsedData ->
+                        log.info("Parsed response: hex data: {}, commandType: {}",
                                 ByteUtil.byteArrayToHexString(parsedData.getData()),
                                 parsedData.getCommandType().getType()
                         )
                 )
-                .flatMap(parsedCommand -> Mono.just(commandDtoMapper.mapToCommandResponseDto(parsedCommand)));
+                .flatMap(parsedCommand -> Mono.just(commandDtoMapper.mapToCommandResponseDto(parsedCommand)))
+                .switchIfEmpty(Mono.error(new CreateDtoException("응답 생성에 문제가 있습니다. 관리자에게 문의하세요.")));
     }
 
     public Mono<byte[]> createPacket(final CommandType commandType, final LocalDateTime startTime) {
         switch (commandType) {
             case MS:
-                return commandHelper.createMsCommand(CommandType.MS, startTime, CommandType.MS.getRequestTotalLength());
+                return commandHelper.createMsCommand(CommandType.MS, startTime, CommandType.MS.getTotalLength());
             case ST:
-                return commandHelper.createStartCommand(CommandType.ST, startTime, CommandType.ST.getRequestTotalLength());
+                return commandHelper.createStartCommand(CommandType.ST, startTime, CommandType.ST.getTotalLength());
+            case PS:
+                return commandHelper.createPsCommand(CommandType.PS, startTime, CommandType.PS.getTotalLength());
             default:
                 return null;
         }

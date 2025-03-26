@@ -57,6 +57,6 @@ public class TestService {
         byte[] bytes = ByteUtil.hexStringToByteArray(example);
         ByteBuf writeBytes = Unpooled.wrappedBuffer(bytes).writeBytes(bytes);
         channel.alloc().buffer().writeBytes(writeBytes);
-        channel.writeAndFlush(writeBytes).addListener((event) -> log.info("Send message: " + event.get()));;
+        channel.writeAndFlush(writeBytes).addListener((event) -> log.info("Send message: " + event.get()));
     }
 }

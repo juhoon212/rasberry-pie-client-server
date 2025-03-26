@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.aprocmd.controller.dto.mapper.CommandMapper;
 import org.example.aprocmd.controller.dto.RequestCommandRequest;
 import org.example.aprocmd.controller.dto.ResponseCommandResponse;
-import org.example.aprocmd.domain.command.request.CommandType;
+import org.example.aprocmd.domain.command.CommandType;
 import org.example.aprocmd.service.CommandService;
 import org.example.aprocmd.service.dto.RequestCommandDto;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +21,7 @@ public class RequestCommandController {
     private final CommandService commandService;
     private final CommandMapper commandMapper;
 
-    @GetMapping("/command/start") // ST
+    @PostMapping("/command/start") // ST
     public Mono<ResponseCommandResponse> startRequestCommand(@RequestBody @Valid final RequestCommandRequest request) {
 
         if (request.commandType() != CommandType.ST) {

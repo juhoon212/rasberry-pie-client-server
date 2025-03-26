@@ -2,10 +2,11 @@ package org.example.aprocmd.infrastructure.handler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.aprocmd.domain.command.response.Command;
-import org.example.aprocmd.domain.command.request.CommandType;
-import org.example.aprocmd.domain.command.response.MsCommand;
-import org.example.aprocmd.domain.command.response.StartCommand;
+import org.example.aprocmd.domain.command.*;
+import org.example.aprocmd.domain.command.Command;
+import org.example.aprocmd.domain.command.request.ms.RequestMsCommand;
+import org.example.aprocmd.domain.command.request.ps.RequestPsCommand;
+import org.example.aprocmd.domain.command.request.st.RequestStartCommand;
 import org.example.aprocmd.exception.command.CommandNotFoundException;
 import org.example.aprocmd.infrastructure.dto.SocketResponseDto;
 import org.example.aprocmd.infrastructure.dto.mapper.SocketResponseMapper;
@@ -33,19 +34,25 @@ public class ResponseCommandHandler {
     }
 
 
-    public Mono<Command> parseData(byte[] data) {
-        switch (commandHelper.parseCommand(data)) {
+    public Mono<Command> parseData(final byte[] data) {
+        switch (commandHelper.parseBytesToCommandType(data)) {
             case ST:
                 return Mono.just(
-                        StartCommand.builder()
+                        RequestStartCommand.builder()
                                 .data(data)
                                 .commandType(CommandType.ST)
                                 .build());
             case MS:
                 return Mono.just(
-                        MsCommand.builder()
+                        RequestMsCommand.builder()
                                 .data(data)
                                 .commandType(CommandType.MS)
+                                .build());
+            case PS:
+                return Mono.just(
+                        RequestPsCommand.builder()
+                                .data(data)
+                                .commandType(CommandType.PS)
                                 .build());
             default:
                 log.error("커맨드가 존재하지 않습니다. 관리자에게 문의하세요 data : {}, {}", data[2], data[3]);

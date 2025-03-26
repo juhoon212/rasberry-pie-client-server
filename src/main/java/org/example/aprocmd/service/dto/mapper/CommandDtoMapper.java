@@ -1,7 +1,7 @@
 package org.example.aprocmd.service.dto.mapper;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.aprocmd.domain.command.response.Command;
+import org.example.aprocmd.domain.command.Command;
 import org.example.aprocmd.service.dto.ResponseCommandDto;
 import org.example.aprocmd.util.ByteUtil;
 import org.example.aprocmd.util.DateUtil;

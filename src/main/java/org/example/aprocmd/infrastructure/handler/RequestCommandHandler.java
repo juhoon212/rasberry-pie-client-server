@@ -6,11 +6,8 @@ import io.netty.channel.Channel;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.aprocmd.infrastructure.dto.SocketResponseDto;
 import org.example.aprocmd.util.ByteUtil;
-import org.example.aprocmd.util.DateUtil;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.Connection;
 import reactor.netty.tcp.TcpClient;
@@ -26,6 +23,7 @@ public class RequestCommandHandler {
     private Channel channel;
 
     public Mono<? extends Connection> sendMessage(final byte[] message, final int dataLength) {
+        log.info("message = {}", message);
         return TcpClient.create()
                 .host(HOST)
                 .port(PORT)

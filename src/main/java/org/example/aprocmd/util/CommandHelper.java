@@ -2,7 +2,11 @@ package org.example.aprocmd.util;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.aprocmd.domain.command.request.CommandType;
+import org.example.aprocmd.domain.command.Command;
+import org.example.aprocmd.domain.command.CommandType;
+import org.example.aprocmd.domain.command.request.ms.RequestMsCommand;
+import org.example.aprocmd.domain.command.request.pc.RequestPcCommand;
+import org.example.aprocmd.domain.command.request.st.RequestStartCommand;
 import org.example.aprocmd.exception.command.CommandNotFoundException;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -48,9 +52,8 @@ public class CommandHelper {
         }
         // 2byte
         // 리틀앤디안 방식
-
-        data[LENGTH_POS] = (byte) (commandType.getCommandLength() & 0xFF);
-        data[LENGTH_POS+1] = (byte) ((commandType.getCommandLength() >> 8) & 0xFF);
+        data[LENGTH_POS] = (byte) (commandType.getDataAreaLength() & 0xFF); // 5번째
+        data[LENGTH_POS+1] = (byte) ((commandType.getDataAreaLength() >> 8) & 0xFF); // 6번째
 
         return data;
     }
@@ -66,7 +69,7 @@ public class CommandHelper {
         }
     }
 
-    public byte[] addCheckSumAndEtx(final byte[] data, final CommandType commandType) {
+    public void addCheckSumAndEtx(final byte[] data, final CommandType commandType) {
         if (data == null) {
             throw new IllegalArgumentException(ILLEGAL_ARGUMENT_DEFAULT_MESSAGE);
         }
@@ -77,11 +80,13 @@ public class CommandHelper {
         }
         data[data.length - 2] = (byte) (sum % 256);
         data[data.length - 1] = commandType.getEndOfPacket();
-
-        return data;
     }
 
-    public CommandType parseCommand(byte[] data) {
+    public CommandType parseBytesToCommandType(byte[] data) {
+        if (data == null) {
+            throw new IllegalArgumentException(ILLEGAL_ARGUMENT_DEFAULT_MESSAGE);
+        }
+
         byte mainCommand = data[2];
         byte subCommand = data[3];
 
@@ -89,6 +94,43 @@ public class CommandHelper {
             return CommandType.ST;
         } else if (mainCommand == CommandType.MS.getCommandByte()[0] && subCommand == CommandType.MS.getCommandByte()[1]) {
             return CommandType.MS;
+        } else if (mainCommand == CommandType.PS.getCommandByte()[0] && subCommand == CommandType.PS.getCommandByte()[1]) {
+            return CommandType.PS;
+        } else {
+            throw new CommandNotFoundException("커맨드가 존재하지 않습니다.");
+        }
+    }
+
+    public Mono<? extends Command> parseBytesToCommand(final byte[] data, LocalDateTime startCommandTime) {
+        if (data == null) {
+            throw new IllegalArgumentException(ILLEGAL_ARGUMENT_DEFAULT_MESSAGE);
+        }
+
+        byte mainCommand = data[2];
+        byte subCommand = data[3];
+
+        if (mainCommand == CommandType.ST.getCommandByte()[0] && subCommand == CommandType.ST.getCommandByte()[1]) {
+            return Mono.just(
+                    RequestStartCommand.builder()
+                            .data(data)
+                            .commandType(CommandType.ST)
+                            .startCommandTime(startCommandTime)
+                            .build()
+            );
+        } else if (mainCommand == CommandType.MS.getCommandByte()[0] && subCommand == CommandType.MS.getCommandByte()[1]) {
+            return Mono.just(
+                    RequestMsCommand.builder()
+                            .data(data)
+                            .commandType(CommandType.MS)
+                            .build()
+            );
+        } else if (mainCommand == CommandType.PS.getCommandByte()[0] && subCommand == CommandType.PS.getCommandByte()[1]) {
+            return Mono.just(
+                    RequestPcCommand.builder()
+                            .data(data)
+                            .commandType(CommandType.PS)
+                            .build()
+            );
         } else {
             throw new CommandNotFoundException("커맨드가 존재하지 않습니다.");
         }
@@ -122,7 +164,7 @@ public class CommandHelper {
         createPacketHeader(packet);
         createCommand(packet, commandType);
         addLength(packet, commandType);
-        packet[6] = (byte) 0x44;
+        packet[6] = (byte) 0x44; // Date&Time flag -> 문서 참고
         // 1980년 기준이기 때문에 20년을 더해준다.
         if (commandType == CommandType.MS) {
             LocalDateTime plusYearStartTime = LocalDateTime.of(
@@ -140,4 +182,24 @@ public class CommandHelper {
 
         return Mono.just(packet);
     }
+
+
+    /*public Mono<byte[]> createPsCommand(
+            final CommandType commandType,
+            final LocalDateTime startTime,
+            final int totalLength
+    ) {
+        // CommandType.ST
+        byte[] packet = new byte[totalLength];
+        createPacketHeader(packet);
+        createCommand(packet, commandType);
+        addLength(packet, commandType);
+        packet[6] = (byte) 0x01; // dummy
+        packet[7] = (byte) 0x01; // dummy
+        addData(packet, startTime, PS_COMMAND_DATA_RANGE);
+        addCheckSumAndEtx(packet, commandType);
+
+        return Mono.just(packet);
+    }
+     */
 }
