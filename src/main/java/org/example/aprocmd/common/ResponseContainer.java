@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.example.aprocmd.exception.FieldErrorDetail;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -18,12 +19,14 @@ public class ResponseContainer<T> {
     private boolean success;
     private String message;
     private List<FieldErrorDetail> details;
+    private HttpStatus status;
     private PageInfo pageInfo;
     public static<P> ResponseContainer<P> emptyResponse() {
         return new ResponseContainer<P>();
     }
     public void setPayload(T payload) {
         this.payload = payload;
+        this.status = HttpStatus.OK;
         this.success = true;
     }
 
